@@ -1,0 +1,264 @@
+package http
+
+import (
+	"encoding/json"
+	httpGo "net/http"
+	"time"
+	"todo_project.com/internal/app/repository"
+	"todo_project.com/internal/app/security"
+	"todo_project.com/internal/app/usecase/task_usecase"
+	"todo_project.com/internal/domain/task"
+)
+
+type (
+	TaskResponse struct {
+		ID          string `json:"id"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		DateInit    string `json:"date_init"`
+		DateEnd     string `json:"date_end"`
+		IDProject   string `json:"id_project"`
+	}
+
+	TaskRequest struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		IDUser      string `json:"id_user"`
+		DateInit    string `json:"date_init"`
+		DateEnd     string `json:"date_end"`
+		IDProject   string `json:"id_project"`
+	}
+)
+
+func taskResponseFromOutput(output task_usecase.Output) *TaskResponse {
+	var dateInit, dateEnd string
+	if output.DateEnd != nil {
+		dateInit = output.DateInit.Format(DataFormat)
+	}
+	if output.DateEnd != nil {
+		dateEnd = output.DateEnd.Format(DataFormat)
+	}
+
+	return &TaskResponse{
+		ID:          output.ID,
+		DateInit:    dateInit,
+		DateEnd:     dateEnd,
+		Status:      string(output.Status),
+		Title:       output.Title,
+		Description: output.Description,
+	}
+}
+
+func taskResponseFromOutputs(outputs []task_usecase.Output) *[]TaskResponse {
+	responses := make([]TaskResponse, 0, len(outputs))
+	for _, output := range outputs {
+		responses = append(responses, *taskResponseFromOutput(output))
+	}
+	return &responses
+}
+
+type TaskController struct {
+	UCCreate          task_usecase.Create
+	UCDelete          task_usecase.Delete
+	UCEdit            task_usecase.Edit
+	UCGet             task_usecase.Get
+	UCGetAllByClient  task_usecase.GetAllByClient
+	UCGetAllByDay     task_usecase.GetAllByDay
+	UcGetResumeStatus task_usecase.GetResumeStatus
+	Authenticator     security.Authenticator
+}
+
+func (c *TaskController) Create(request Request) Response {
+
+	var taskBody TaskRequest
+	err := json.Unmarshal([]byte(request.Body), &taskBody)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	input := task_usecase.CreateInput{
+		LoggedUser:  *request.LoggedUser,
+		DateInit:    taskBody.DateInit,
+		DateEnd:     taskBody.DateEnd,
+		Title:       taskBody.Title,
+		Description: taskBody.Description,
+	}
+
+	output, err := c.UCCreate.Handle(input)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapBody(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusCreated,
+		Body:     wrapBody(output),
+	}
+}
+
+func (c *TaskController) Get(request Request) Response {
+	input := task_usecase.GetInput{
+		IDTask: request.Params["id"],
+	}
+	output, err := c.UCGet.Handle(input)
+
+	if err != nil {
+		httpStatus := httpGo.StatusInternalServerError
+		switch err {
+		case security.ErrUnauthorized:
+			httpStatus = httpGo.StatusForbidden
+		case repository.ErrTaskNotFound:
+			httpStatus = httpGo.StatusNotFound
+		}
+
+		return Response{
+			HttpCode: httpStatus,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(taskResponseFromOutput(*output)),
+	}
+}
+
+func (c *TaskController) GetAllByClientId(request Request) Response {
+	input := task_usecase.GetAllByClientInput{
+		IDUser: request.Params["id"],
+	}
+
+	output, err := c.UCGetAllByClient.Handle(input)
+
+	if err != nil {
+		httpStatus := httpGo.StatusInternalServerError
+		switch err {
+		case security.ErrUnauthorized:
+			httpStatus = httpGo.StatusForbidden
+		case repository.ErrTaskNotFound:
+			httpStatus = httpGo.StatusNotFound
+		}
+
+		return Response{
+			HttpCode: httpStatus,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(taskResponseFromOutputs(*output)),
+	}
+
+}
+
+func (c *TaskController) Delete(request Request) Response {
+	input := task_usecase.DeleteInput{ID: request.Params["id"]}
+	output, err := c.UCDelete.Handle(input)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(*output),
+	}
+
+}
+
+func (c *TaskController) Edit(request Request) Response {
+	var taskBody TaskRequest
+	err := json.Unmarshal([]byte(request.Body), &taskBody)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	input := task_usecase.EditInput{
+		ID:          request.Params["id"],
+		Title:       taskBody.Title,
+		Description: taskBody.Description,
+		Status:      task.Status(taskBody.Status),
+		DateInit:    taskBody.DateInit,
+		DateEnd:     taskBody.DateEnd,
+	}
+
+	output, err := c.UCEdit.Handle(input)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapBody(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(*output),
+	}
+}
+
+func (c *TaskController) GetAllByDay(request Request) Response {
+	dayTime, err := time.Parse(task.LayoutFromParseTime, request.Params["day"])
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusBadRequest,
+			Body:     wrapError(err),
+		}
+	}
+
+	input := task_usecase.GetAllByDayInput{
+		IDUser: request.LoggedUser.ID,
+		Day:    dayTime,
+	}
+
+	if request.LoggedUser.ID == "" {
+		return Response{
+			HttpCode: httpGo.StatusUnauthorized,
+		}
+	}
+
+	output, err := c.UCGetAllByDay.Handle(input)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(output),
+	}
+}
+
+func (c *TaskController) GetResumeStatus(request Request) Response {
+	input := task_usecase.GetResumeStatusInput{
+		IDUser: request.LoggedUser.ID,
+	}
+
+	response, err := c.UcGetResumeStatus.Handle(input)
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(response),
+	}
+
+}

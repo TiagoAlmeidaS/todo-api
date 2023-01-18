@@ -1,0 +1,288 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Todo API"
+  contact:
+    email: "tigore21htl@gmail.com"
+schemes:
+  - "https"
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+tags:
+  - name: "user_usecase"
+    description: "User-related actions"
+paths:
+  /user/register:
+    post:
+      tags:
+        - "user_usecase"
+      summary: "Register a user_usecase"
+      description: ""
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to register a user_usecase"
+          required: true
+          schema:
+            $ref: "#/definitions/UserRegister"
+      responses:
+        "201":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/UserToken"
+        "400":
+          description: "Invalid inputs"
+  /user/login:
+    post:
+      tags:
+        - "user_usecase"
+      summary: "Login with a user_usecase"
+      description: ""
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to register a user_usecase"
+          required: true
+          schema:
+            $ref: "#/definitions/UserLogin"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/UserToken"
+        "400":
+          description: "Invalid inputs"
+  /tasks:
+    post:
+      tags:
+        - "task_usecase"
+      summary: "Create a task_usecase"
+      description: ""
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Task object that needs to register a task_usecase"
+          required: true
+          schema:
+            $ref: "#/definitions/TaskInput"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/TaskOutput"
+        "400":
+          description: "Invalid inputs"
+  /tasks/{id_user}:
+    get:
+      tags:
+        - "task_usecase"
+      summary: "Get a task_usecase"
+      description: ""
+      parameters:
+        - in: "path"
+          name: "id_user"
+          description: "user_usecase id of task_usecase"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/TaskOutput"
+        "400":
+          description: "Invalid inputs"
+      security:
+        - Token: [ ]
+  /tasks/{id}:
+    get:
+      tags:
+        - "task_usecase"
+      summary: "Get a task_usecase"
+      description: ""
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of task_usecase to get"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/TaskOutput"
+        "400":
+          description: "Invalid inputs"
+      security:
+        - Token: [ ]
+  /tasks/{id_put}:
+    put:
+      tags:
+        - "task_usecase"
+      summary: "Update a task_usecase"
+      description: ""
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of task_usecase to get"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/TaskOutput"
+        "404":
+          description: "task_usecase not found"
+      security:
+        - Token: [ ]
+  /tasks/{id_delete}:
+    delete:
+      tags:
+        - "task_usecase"
+      summary: "Delete a task_usecase"
+      description: ""
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of task_usecase to get"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+        "404":
+          description: "task_usecase not found"
+      security:
+        - Token: [ ]
+  /tasks/{day}:
+    get:
+      tags:
+        - "task_usecase"
+      summary: "Get all tasks of client by day"
+      description: ""
+      parameters:
+        - in: "path"
+          name: "day"
+          description: "day used to select tasks"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/TaskOutput"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+  /tasks/resume:
+    get:
+      tags:
+        - "task_usecase"
+      summary: "Get status of task with resume"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ResumeOutput"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+securityDefinitions:
+  Token:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "the user_usecase id"
+      name:
+        type: "string"
+        description: "the user_usecase's full name"
+      email:
+        type: "string"
+        description: "the user_usecase's email address"
+  UserRegister:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "the user_usecase's full name"
+      email:
+        type: "string"
+        description: "the user_usecase's e-mail address"
+      password:
+        type: "string"
+        description: "the user_usecase password"
+  UserLogin:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+        description: "the user_usecase's e-mail address"
+      password:
+        type: "string"
+        description: "the user_usecase password"
+  UserToken:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+        description: "the user_usecase's e-mail address"
+      password:
+        type: "string"
+        description: "the user_usecase password"
+      token:
+        type: "string"
+        description: "application authorization token"
+  TaskOutput:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "the id of task_usecase"
+      title:
+        type: "string"
+        description: "the title of task_usecase"
+      description:
+        type: "string"
+        description: "The description of task_usecase"
+      date_init:
+        type: "string"
+        description: "the date init task_usecase"
+      date_end:
+        type: "string"
+        description: "the date end task_usecase"
+  TaskInput:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+        description: "the title of task_usecase"
+      description:
+        type: "string"
+        description: "The description of task_usecase"
+      date_init:
+        type: "string"
+        description: "the date init task_usecase"
+      date_end:
+        type: "string"
+        description: "the date end task_usecase"
+  ResumeOutput:
+      type: "object"
+      properties:
+        open:
+          type: "integer"
+        process:
+          type: "integer"
+        completed:
+          type: "integer"
