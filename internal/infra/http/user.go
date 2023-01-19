@@ -18,15 +18,11 @@ type (
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	UserTokenResponse struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-		Token string `json:"token"`
-	}
 	UserResponse struct {
 		ID    string `json:"id"`
 		Name  string `json:"name"`
 		Email string `json:"email"`
+		Token string `json:"token"`
 	}
 )
 
@@ -87,10 +83,11 @@ func (c *UserController) Register(request Request) Response {
 	}
 	return Response{
 		HttpCode: http.StatusCreated,
-		Body: wrapBody(UserTokenResponse{
+		Body: wrapBody(UserResponse{
 			Token: token,
 			Email: output.Email,
 			Name:  output.Name,
+			ID:    output.ID,
 		}),
 	}
 }
@@ -136,10 +133,11 @@ func (c *UserController) Login(request Request) Response {
 
 	return Response{
 		HttpCode: http.StatusOK,
-		Body: wrapBody(UserTokenResponse{
+		Body: wrapBody(UserResponse{
 			Token: token,
 			Email: output.Email,
 			Name:  output.Name,
+			ID:    output.ID,
 		}),
 	}
 }

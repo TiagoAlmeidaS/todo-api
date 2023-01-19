@@ -32,7 +32,7 @@ func getCollections(uri, database string) (*Collections, error) {
 	}
 
 	return &Collections{
-		User: db.Collection("user_usecase"),
+		User: db.Collection("users"),
 		Task: db.Collection("tasks"),
 	}, nil
 }

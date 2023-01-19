@@ -97,57 +97,75 @@ func (h *Http) Start(port int) error {
 		Authenticator: h.Authenticator,
 	}
 
+	taskController := TaskController{
+		TCCreate:          h.UseCases.TaskCreate,
+		TCDelete:          h.UseCases.TaskDelete,
+		TCGet:             h.UseCases.TaskGet,
+		TCGetResumeStatus: h.UseCases.TaskGetResumeStatus,
+		TCGetAllByDay:     h.UseCases.TaskGetAllByDay,
+		TCEdit:            h.UseCases.TaskEdit,
+		TCGetAllByClient:  h.UseCases.TaskGetAllByClient,
+		Authenticator:     h.Authenticator,
+	}
+
 	h.Server.Register(Route{
 		Method:  http.MethodPost,
-		Path:    "/user_usecase/register",
+		Path:    "/users/register",
 		Handler: userController.Register,
 	})
 
 	h.Server.Register(Route{
 		Method:  http.MethodPost,
-		Path:    "/user_usecase/login",
+		Path:    "/users/login",
 		Handler: userController.Login,
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
 		Path:        "/tasks/:id",
+		Handler:     taskController.Get,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
-		Path:        "/tasks/:id_user",
+		Path:        "/tasks/client/:id_user",
+		Handler:     taskController.GetAllByClientId,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodPost,
 		Path:        "/tasks",
+		Handler:     taskController.Create,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodPut,
 		Path:        "/tasks/:id",
+		Handler:     taskController.Edit,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodDelete,
 		Path:        "/tasks/:id",
+		Handler:     taskController.Delete,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
 		Path:        "/tasks/resume",
+		Handler:     taskController.GetResumeStatus,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
-		Path:        "/tasks/:day",
+		Path:        "/tasks/:day/day",
+		Handler:     taskController.GetAllByDay,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 

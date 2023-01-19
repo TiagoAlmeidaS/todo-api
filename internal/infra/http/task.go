@@ -60,13 +60,13 @@ func taskResponseFromOutputs(outputs []task_usecase.Output) *[]TaskResponse {
 }
 
 type TaskController struct {
-	UCCreate          task_usecase.Create
-	UCDelete          task_usecase.Delete
-	UCEdit            task_usecase.Edit
-	UCGet             task_usecase.Get
-	UCGetAllByClient  task_usecase.GetAllByClient
-	UCGetAllByDay     task_usecase.GetAllByDay
-	UcGetResumeStatus task_usecase.GetResumeStatus
+	TCCreate          task_usecase.Create
+	TCDelete          task_usecase.Delete
+	TCEdit            task_usecase.Edit
+	TCGet             task_usecase.Get
+	TCGetAllByClient  task_usecase.GetAllByClient
+	TCGetAllByDay     task_usecase.GetAllByDay
+	TCGetResumeStatus task_usecase.GetResumeStatus
 	Authenticator     security.Authenticator
 }
 
@@ -89,7 +89,7 @@ func (c *TaskController) Create(request Request) Response {
 		Description: taskBody.Description,
 	}
 
-	output, err := c.UCCreate.Handle(input)
+	output, err := c.TCCreate.Handle(input)
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,
@@ -107,7 +107,7 @@ func (c *TaskController) Get(request Request) Response {
 	input := task_usecase.GetInput{
 		IDTask: request.Params["id"],
 	}
-	output, err := c.UCGet.Handle(input)
+	output, err := c.TCGet.Handle(input)
 
 	if err != nil {
 		httpStatus := httpGo.StatusInternalServerError
@@ -135,7 +135,7 @@ func (c *TaskController) GetAllByClientId(request Request) Response {
 		IDUser: request.Params["id"],
 	}
 
-	output, err := c.UCGetAllByClient.Handle(input)
+	output, err := c.TCGetAllByClient.Handle(input)
 
 	if err != nil {
 		httpStatus := httpGo.StatusInternalServerError
@@ -161,7 +161,7 @@ func (c *TaskController) GetAllByClientId(request Request) Response {
 
 func (c *TaskController) Delete(request Request) Response {
 	input := task_usecase.DeleteInput{ID: request.Params["id"]}
-	output, err := c.UCDelete.Handle(input)
+	output, err := c.TCDelete.Handle(input)
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,
@@ -195,7 +195,7 @@ func (c *TaskController) Edit(request Request) Response {
 		DateEnd:     taskBody.DateEnd,
 	}
 
-	output, err := c.UCEdit.Handle(input)
+	output, err := c.TCEdit.Handle(input)
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,
@@ -229,7 +229,7 @@ func (c *TaskController) GetAllByDay(request Request) Response {
 		}
 	}
 
-	output, err := c.UCGetAllByDay.Handle(input)
+	output, err := c.TCGetAllByDay.Handle(input)
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,
@@ -248,7 +248,7 @@ func (c *TaskController) GetResumeStatus(request Request) Response {
 		IDUser: request.LoggedUser.ID,
 	}
 
-	response, err := c.UcGetResumeStatus.Handle(input)
+	response, err := c.TCGetResumeStatus.Handle(input)
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,

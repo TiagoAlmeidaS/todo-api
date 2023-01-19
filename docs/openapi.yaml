@@ -15,7 +15,7 @@ tags:
   - name: "user_usecase"
     description: "User-related actions"
 paths:
-  /user/register:
+  /users/register:
     post:
       tags:
         - "user_usecase"
@@ -35,7 +35,7 @@ paths:
             $ref: "#/definitions/UserToken"
         "400":
           description: "Invalid inputs"
-  /user/login:
+  /users/login:
     post:
       tags:
         - "user_usecase"
@@ -75,11 +75,11 @@ paths:
             $ref: "#/definitions/TaskOutput"
         "400":
           description: "Invalid inputs"
-  /tasks/{id_user}:
+  /tasks/client/{id_user}:
     get:
       tags:
         - "task_usecase"
-      summary: "Get a task_usecase"
+      summary: "Get all tasks"
       description: ""
       parameters:
         - in: "path"
@@ -157,7 +157,7 @@ paths:
           description: "task_usecase not found"
       security:
         - Token: [ ]
-  /tasks/{day}:
+  /tasks/{day}/day:
     get:
       tags:
         - "task_usecase"
