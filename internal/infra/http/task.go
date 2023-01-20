@@ -11,6 +11,21 @@ import (
 )
 
 type (
+	EditResponse struct {
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Status      string `json:"status"`
+		DateInit    string `json:"date_init"`
+		DateEnd     string `json:"date_end"`
+		IDProject   string `json:"id_project"`
+	}
+
+	ResumeResponse struct {
+		Open      int `json:"open"`
+		Process   int `json:"process"`
+		Completed int `json:"completed"`
+	}
+
 	TaskResponse struct {
 		ID          string `json:"id"`
 		Title       string `json:"title"`
@@ -31,6 +46,25 @@ type (
 		IDProject   string `json:"id_project"`
 	}
 )
+
+func resumeResponseFromOutPut(output task_usecase.OutputResume) *ResumeResponse {
+	return &ResumeResponse{
+		Open:      output.Open,
+		Process:   output.Process,
+		Completed: output.Completed,
+	}
+}
+
+func editResponseFromOutPut(output task_usecase.EditOutput) *EditResponse {
+	return &EditResponse{
+		Title:       output.Title,
+		Description: output.Description,
+		Status:      string(output.Status),
+		IDProject:   output.IDProject,
+		DateInit:    output.DateInit.String(),
+		DateEnd:     output.DateEnd.String(),
+	}
+}
 
 func taskResponseFromOutput(output task_usecase.Output) *TaskResponse {
 	var dateInit, dateEnd string
@@ -205,7 +239,7 @@ func (c *TaskController) Edit(request Request) Response {
 
 	return Response{
 		HttpCode: httpGo.StatusOK,
-		Body:     wrapBody(*output),
+		Body:     wrapBody(editResponseFromOutPut(*output)),
 	}
 }
 
@@ -258,7 +292,7 @@ func (c *TaskController) GetResumeStatus(request Request) Response {
 
 	return Response{
 		HttpCode: httpGo.StatusOK,
-		Body:     wrapBody(response),
+		Body:     wrapBody(resumeResponseFromOutPut(*response)),
 	}
 
 }

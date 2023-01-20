@@ -164,7 +164,7 @@ func TestTaskController_Create(t *testing.T) {
 		mockTCCreate := new(mockTCCreate)
 		mockTCCreate.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCCreate: mockTCCreate}
+		uc := TaskController{Authenticator: mockAuth, TCCreate: mockTCCreate}
 
 		response := uc.Create(request)
 
@@ -182,7 +182,7 @@ func TestTaskController_Create(t *testing.T) {
 		mockTCCreate := new(mockTCCreate)
 		mockTCCreate.On("Handle", mock.Anything).Return(nil, task.ErrIdUserIsInvalid)
 
-		uc := TaskController{Authenticator: mockAuth, UCCreate: mockTCCreate}
+		uc := TaskController{Authenticator: mockAuth, TCCreate: mockTCCreate}
 		response := uc.Create(request)
 
 		assert.NotNil(t, response)
@@ -215,7 +215,7 @@ func TestTaskController_Get(t *testing.T) {
 		mockTCGet := new(mockTCGet)
 		mockTCGet.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCGet: mockTCGet}
+		uc := TaskController{Authenticator: mockAuth, TCGet: mockTCGet}
 
 		response := uc.Get(request)
 
@@ -233,7 +233,7 @@ func TestTaskController_Get(t *testing.T) {
 		mockTCGet := new(mockTCGet)
 		mockTCGet.On("Handle", mock.Anything).Return(nil, repository.ErrTaskNotFound)
 
-		uc := TaskController{Authenticator: mockAuth, UCGet: mockTCGet}
+		uc := TaskController{Authenticator: mockAuth, TCGet: mockTCGet}
 
 		response := uc.Get(request)
 
@@ -267,7 +267,7 @@ func TestTaskController_GetAllByClientId(t *testing.T) {
 		mockTCGetAllByClientId := new(mockTCGetAllByClientId)
 		mockTCGetAllByClientId.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCGetAllByClient: mockTCGetAllByClientId}
+		uc := TaskController{Authenticator: mockAuth, TCGetAllByClient: mockTCGetAllByClientId}
 		response := uc.GetAllByClientId(request)
 
 		assert.Equal(t, response.HttpCode, httpGO.StatusOK)
@@ -287,7 +287,7 @@ func TestTaskController_GetAllByClientId(t *testing.T) {
 		mockTCGetAllByClientId := new(mockTCGetAllByClientId)
 		mockTCGetAllByClientId.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCGetAllByClient: mockTCGetAllByClientId}
+		uc := TaskController{Authenticator: mockAuth, TCGetAllByClient: mockTCGetAllByClientId}
 		response := uc.GetAllByClientId(request)
 
 		assert.Equal(t, response.HttpCode, httpGO.StatusOK)
@@ -311,7 +311,7 @@ func TestTaskController_Delete(t *testing.T) {
 		mockTCDelete := new(mockTCDelete)
 		mockTCDelete.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCDelete: mockTCDelete}
+		uc := TaskController{Authenticator: mockAuth, TCDelete: mockTCDelete}
 
 		response := uc.Delete(request)
 
@@ -331,7 +331,7 @@ func TestTaskController_Delete(t *testing.T) {
 		mockTCDelete := new(mockTCDelete)
 		mockTCDelete.On("Handle", mock.Anything).Return(nil, repository.ErrTaskNotFound)
 
-		uc := TaskController{Authenticator: mockAuth, UCDelete: mockTCDelete}
+		uc := TaskController{Authenticator: mockAuth, TCDelete: mockTCDelete}
 
 		response := uc.Delete(request)
 
@@ -369,7 +369,7 @@ func TestTaskController_Edit(t *testing.T) {
 		mockTCEdit := new(mockTCEdit)
 		mockTCEdit.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCEdit: mockTCEdit}
+		uc := TaskController{Authenticator: mockAuth, TCEdit: mockTCEdit}
 
 		response := uc.Edit(request)
 
@@ -405,7 +405,7 @@ func TestTaskController_GetAllByDay(t *testing.T) {
 		mockTCGetAllByDay := new(mockTCGetAllByDay)
 		mockTCGetAllByDay.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UCGetAllByDay: mockTCGetAllByDay}
+		uc := TaskController{Authenticator: mockAuth, TCGetAllByDay: mockTCGetAllByDay}
 		response := uc.GetAllByDay(request)
 
 		assert.Equal(t, httpGO.StatusOK, response.HttpCode)
@@ -428,7 +428,7 @@ func TestTaskController_GetResumeStatus(t *testing.T) {
 		mockTCGetResumeStatus := new(mockTCGetResumeStatus)
 		mockTCGetResumeStatus.On("Handle", mock.Anything).Return(output, nil)
 
-		uc := TaskController{Authenticator: mockAuth, UcGetResumeStatus: mockTCGetResumeStatus}
+		uc := TaskController{Authenticator: mockAuth, TCGetResumeStatus: mockTCGetResumeStatus}
 
 		response := uc.GetResumeStatus(request)
 
