@@ -129,7 +129,7 @@ func (h *Http) Start(port int) error {
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
-		Path:        "/tasks/client/:id_user",
+		Path:        "/tasks/client/:id",
 		Handler:     taskController.GetAllByClientId,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})

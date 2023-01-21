@@ -20,6 +20,7 @@ type edit struct {
 
 type EditInput struct {
 	ID          string
+	IDUser      string
 	DateInit    string
 	DateEnd     string
 	Title       string
@@ -44,6 +45,10 @@ func NewEdit(taskRepository repository.ITaskRepository) Edit {
 func (e *edit) Handle(input EditInput) (*EditOutput, error) {
 	taskGot, err := e.taskRepository.GetById(input.ID)
 	if err != nil {
+		return nil, err
+	}
+
+	if input.IDUser != taskGot.IDUser {
 		return nil, err
 	}
 

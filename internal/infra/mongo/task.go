@@ -84,7 +84,7 @@ func (t TaskRepository) GetById(id string) (*task.Task, error) {
 	err = t.Collection.FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&taskModel)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, repository.ErrUserNotFound
+			return nil, repository.ErrTaskNotFound
 		}
 		return nil, err
 	}
@@ -104,9 +104,9 @@ func (t TaskRepository) Insert(taskDomain task.Task) (*task.Task, error) {
 
 func (t TaskRepository) Update(taskDomain task.Task) (*task.Task, error) {
 	taskModel := domainToTask(taskDomain)
-	_, err := t.Collection.UpdateByID(context.Background(), taskModel.ID, taskModel)
+	_, err := t.Collection.UpdateOne(context.Background(), bson.M{"_id": taskModel.ID}, bson.M{"$set": taskModel})
 	if err != nil {
-		return nil, err
+		return nil, repository.ErrTaskUpdateNotFound
 	}
 
 	return taskModel.toDomain(), nil

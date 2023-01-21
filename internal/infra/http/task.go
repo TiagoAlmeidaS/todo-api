@@ -11,6 +11,14 @@ import (
 )
 
 type (
+	GetAllByClientIdResponse struct {
+		Tasks []TaskResponse `json:"tasks"`
+	}
+
+	GetAllByDayResponse struct {
+		Tasks []TaskResponse `json:"tasks"`
+	}
+
 	EditResponse struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
@@ -91,6 +99,23 @@ func taskResponseFromOutputs(outputs []task_usecase.Output) *[]TaskResponse {
 		responses = append(responses, *taskResponseFromOutput(output))
 	}
 	return &responses
+}
+
+func getAllByClientIdResponseFromOutputs(outputs []task_usecase.Output) *GetAllByClientIdResponse {
+	response := taskResponseFromOutputs(outputs)
+
+	return &GetAllByClientIdResponse{
+		Tasks: *response,
+	}
+}
+
+func getAllByDayResponseFromOutputs(outputs []task_usecase.Output) *GetAllByDayResponse {
+	response := taskResponseFromOutputs(outputs)
+
+	return &GetAllByDayResponse{
+		Tasks: *response,
+	}
+
 }
 
 type TaskController struct {
@@ -188,7 +213,7 @@ func (c *TaskController) GetAllByClientId(request Request) Response {
 
 	return Response{
 		HttpCode: httpGo.StatusOK,
-		Body:     wrapBody(taskResponseFromOutputs(*output)),
+		Body:     wrapBody(getAllByClientIdResponseFromOutputs(*output)),
 	}
 
 }
@@ -215,13 +240,14 @@ func (c *TaskController) Edit(request Request) Response {
 	err := json.Unmarshal([]byte(request.Body), &taskBody)
 	if err != nil {
 		return Response{
-			HttpCode: httpGo.StatusInternalServerError,
+			HttpCode: httpGo.StatusBadRequest,
 			Body:     wrapError(err),
 		}
 	}
 
 	input := task_usecase.EditInput{
 		ID:          request.Params["id"],
+		IDUser:      request.LoggedUser.ID,
 		Title:       taskBody.Title,
 		Description: taskBody.Description,
 		Status:      task.Status(taskBody.Status),
@@ -230,10 +256,11 @@ func (c *TaskController) Edit(request Request) Response {
 	}
 
 	output, err := c.TCEdit.Handle(input)
+
 	if err != nil {
 		return Response{
 			HttpCode: httpGo.StatusInternalServerError,
-			Body:     wrapBody(err),
+			Body:     wrapError(err),
 		}
 	}
 
@@ -273,7 +300,7 @@ func (c *TaskController) GetAllByDay(request Request) Response {
 
 	return Response{
 		HttpCode: httpGo.StatusOK,
-		Body:     wrapBody(output),
+		Body:     wrapBody(getAllByDayResponseFromOutputs(*output)),
 	}
 }
 

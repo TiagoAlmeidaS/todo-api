@@ -262,6 +262,12 @@ definitions:
       date_end:
         type: "string"
         description: "the date end task_usecase"
+      status:
+        type: "string"
+        description: "describe which status is a task"
+      id_project:
+        type: "string"
+        description: "belongs the a project"
   TaskInput:
     type: "object"
     properties:
@@ -277,6 +283,12 @@ definitions:
       date_end:
         type: "string"
         description: "the date end task_usecase"
+      status:
+        type: "string"
+        description: "describe which status is a task"
+      id_project:
+        type: "string"
+        description: "belongs the a project"
   ResumeOutput:
       type: "object"
       properties:
