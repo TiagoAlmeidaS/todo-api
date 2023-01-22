@@ -13,8 +13,9 @@ type Repositories struct {
 }
 
 type Collections struct {
-	User *mongo.Collection
-	Task *mongo.Collection
+	User  *mongo.Collection
+	Task  *mongo.Collection
+	Notes *mongo.Collection
 }
 
 func getDatabase(uri, database string) (*mongo.Database, error) {
@@ -32,8 +33,9 @@ func getCollections(uri, database string) (*Collections, error) {
 	}
 
 	return &Collections{
-		User: db.Collection("users"),
-		Task: db.Collection("tasks"),
+		User:  db.Collection("users"),
+		Task:  db.Collection("tasks"),
+		Notes: db.Collection("notes"),
 	}, nil
 }
 
@@ -44,7 +46,8 @@ func (r *Repositories) GetRepositories() (*repository.AllRepositories, error) {
 	}
 
 	return &repository.AllRepositories{
-		IUserRepository: &UserRepository{Collection: collection.User},
-		ITaskRepository: &TaskRepository{Collection: collection.Task},
+		IUserRepository:  &UserRepository{Collection: collection.User},
+		ITaskRepository:  &TaskRepository{Collection: collection.Task},
+		INotesRepository: &NotesRepository{Collection: collection.Notes},
 	}, nil
 }

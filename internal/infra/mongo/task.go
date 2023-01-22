@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 	"time"
 	"todo_project.com/internal/app/repository"
 	"todo_project.com/internal/domain/task"
@@ -221,4 +222,31 @@ func (t TaskRepository) GetAllByDay(day time.Time, clientId string) (*[]task.Tas
 
 	return &tasks, nil
 
+}
+
+func (t TaskRepository) GetByName(nameTask string, clientId string) (*[]task.Task, error) {
+	var tasks []task.Task
+
+	cur, err := t.Collection.Find(context.Background(), bson.M{"id_user": clientId})
+	if err != nil {
+		return nil, err
+	}
+
+	for cur.Next(context.Background()) {
+		taskIn := Task{}
+		if err = cur.Decode(&taskIn); err != nil {
+			return nil, err
+		}
+
+		if strings.Contains(strings.ToLower(taskIn.Title), strings.ToLower(nameTask)) {
+			tasks = append(tasks, *taskIn.toDomain())
+		}
+	}
+
+	err = cur.Close(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &tasks, nil
 }

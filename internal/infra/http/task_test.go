@@ -26,6 +26,19 @@ func (m *mockTCCreate) Handle(input task_usecase.CreateInput) (*task_usecase.Out
 	return result, args.Error(1)
 }
 
+type mockTCGetByName struct {
+	mock.Mock
+}
+
+func (m *mockTCGetByName) Handle(input task_usecase.GetByNameInput) (*[]task_usecase.Output, error) {
+	args := m.Called(input)
+	var result *[]task_usecase.Output
+	if args.Get(0) != nil {
+		result = args.Get(0).(*[]task_usecase.Output)
+	}
+	return result, args.Error(1)
+}
+
 type mockTCGet struct {
 	mock.Mock
 }
@@ -436,4 +449,40 @@ func TestTaskController_GetResumeStatus(t *testing.T) {
 		assert.Equal(t, httpGO.StatusOK, response.HttpCode)
 
 	})
+}
+
+func TestTaskController_GetByName(t *testing.T) {
+	params := map[string]string{"name": "ti"}
+
+	t.Run("should get all task by day", func(t *testing.T) {
+		request := Request{
+			Params:     params,
+			LoggedUser: &security.User{ID: "123"},
+		}
+
+		date := time.Now()
+
+		token := "the_token"
+
+		output := &[]task_usecase.Output{{
+			ID:          "id",
+			Title:       "title",
+			Description: "description",
+			DateEnd:     &date,
+			DateInit:    &date,
+			Status:      task.Open,
+		},
+		}
+
+		mockAuth := new(mockAuth)
+		mockAuth.On("Generate", mock.Anything).Return(token, nil)
+		mockTCGetByName := new(mockTCGetByName)
+		mockTCGetByName.On("Handle", mock.Anything).Return(output, nil)
+
+		uc := TaskController{Authenticator: mockAuth, TCGetByName: mockTCGetByName}
+		response := uc.GetByName(request)
+
+		assert.Equal(t, httpGO.StatusOK, response.HttpCode)
+	})
+
 }

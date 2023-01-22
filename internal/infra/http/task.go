@@ -19,6 +19,10 @@ type (
 		Tasks []TaskResponse `json:"tasks"`
 	}
 
+	GetByNameResponse struct {
+		Tasks []TaskResponse `json:"tasks"`
+	}
+
 	EditResponse struct {
 		Title       string `json:"title"`
 		Description string `json:"description"`
@@ -118,6 +122,15 @@ func getAllByDayResponseFromOutputs(outputs []task_usecase.Output) *GetAllByDayR
 
 }
 
+func getByNameResponseFromOutputs(outputs []task_usecase.Output) *GetByNameResponse {
+	response := taskResponseFromOutputs(outputs)
+
+	return &GetByNameResponse{
+		Tasks: *response,
+	}
+
+}
+
 type TaskController struct {
 	TCCreate          task_usecase.Create
 	TCDelete          task_usecase.Delete
@@ -126,6 +139,7 @@ type TaskController struct {
 	TCGetAllByClient  task_usecase.GetAllByClient
 	TCGetAllByDay     task_usecase.GetAllByDay
 	TCGetResumeStatus task_usecase.GetResumeStatus
+	TCGetByName       task_usecase.GetByName
 	Authenticator     security.Authenticator
 }
 
@@ -322,4 +336,25 @@ func (c *TaskController) GetResumeStatus(request Request) Response {
 		Body:     wrapBody(resumeResponseFromOutPut(*response)),
 	}
 
+}
+
+func (c *TaskController) GetByName(request Request) Response {
+	input := task_usecase.GetByNameInput{
+		NameTask: request.Params["name"],
+		IDUser:   request.LoggedUser.ID,
+	}
+
+	response, err := c.TCGetByName.Handle(input)
+
+	if err != nil {
+		return Response{
+			HttpCode: httpGo.StatusInternalServerError,
+			Body:     wrapError(err),
+		}
+	}
+
+	return Response{
+		HttpCode: httpGo.StatusOK,
+		Body:     wrapBody(getByNameResponseFromOutputs(*response)),
+	}
 }
