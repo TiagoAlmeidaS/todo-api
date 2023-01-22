@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrUnauthorized = errors.New("user_usecase is unauthorized")
+	ErrUnauthorized = errors.New("user is unauthorized")
 )
 
 type User struct {

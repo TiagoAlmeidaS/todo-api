@@ -18,6 +18,17 @@ type (
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
+
+	UserTokenRequest struct {
+		Token string `json:"token"`
+		ID    string `json:"id"`
+		Name  string `json:"name"`
+	}
+
+	UserTokenResponse struct {
+		Token string `json:"token"`
+	}
+
 	UserResponse struct {
 		ID    string `json:"id"`
 		Name  string `json:"name"`
@@ -138,6 +149,41 @@ func (c *UserController) Login(request Request) Response {
 			Email: output.Email,
 			Name:  output.Name,
 			ID:    output.ID,
+		}),
+	}
+}
+
+func (c *UserController) AuthenticationUser(request Request) Response {
+	var userToken UserTokenRequest
+	err := json.Unmarshal([]byte(request.Body), &userToken)
+	if err != nil {
+		return Response{
+			HttpCode: http.StatusBadRequest,
+			Body:     wrapError(err),
+		}
+	}
+
+	_, err = c.Authenticator.Validate(userToken.Token)
+	if err != nil {
+		token, err := c.Authenticator.Generate(security.User{ID: userToken.ID, Name: userToken.Name})
+		if err != nil {
+			return Response{
+				HttpCode: http.StatusInternalServerError,
+				Body:     wrapError(err),
+			}
+		}
+		return Response{
+			HttpCode: http.StatusOK,
+			Body: wrapBody(UserTokenResponse{
+				Token: token,
+			}),
+		}
+	}
+
+	return Response{
+		HttpCode: http.StatusOK,
+		Body: wrapBody(UserTokenResponse{
+			Token: userToken.Token,
 		}),
 	}
 }

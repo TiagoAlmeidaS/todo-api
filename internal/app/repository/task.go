@@ -19,4 +19,5 @@ type ITaskRepository interface {
 	DeleteById(id string) error
 	GetResumeStatus(clientId string) (*task.Resume, error)
 	GetAllByDay(day time.Time, clientId string) (*[]task.Task, error)
+	GetByName(nameTask string, clientId string) (*[]task.Task, error)
 }
