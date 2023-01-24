@@ -236,12 +236,6 @@ func (c *NotesController) GetAllByDay(request Request) Response {
 		Day:    dayTime,
 	}
 
-	if request.LoggedUser.ID == "" {
-		return Response{
-			HttpCode: httpGo.StatusUnauthorized,
-		}
-	}
-
 	output, err := c.NCGetAllByDay.Handle(input)
 	if err != nil {
 		return Response{

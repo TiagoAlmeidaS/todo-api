@@ -24,4 +24,5 @@ func NewUser(user user.User) User {
 type Authenticator interface {
 	Generate(user User) (string, error)
 	Validate(token string) (*User, error)
+	RefreshToken(token string) (string, error)
 }

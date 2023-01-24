@@ -21,8 +21,6 @@ type (
 
 	UserTokenRequest struct {
 		Token string `json:"token"`
-		ID    string `json:"id"`
-		Name  string `json:"name"`
 	}
 
 	UserTokenResponse struct {
@@ -163,20 +161,11 @@ func (c *UserController) AuthenticationUser(request Request) Response {
 		}
 	}
 
-	_, err = c.Authenticator.Validate(userToken.Token)
+	_, err = c.Authenticator.RefreshToken(userToken.Token)
 	if err != nil {
-		token, err := c.Authenticator.Generate(security.User{ID: userToken.ID, Name: userToken.Name})
-		if err != nil {
-			return Response{
-				HttpCode: http.StatusInternalServerError,
-				Body:     wrapError(err),
-			}
-		}
 		return Response{
-			HttpCode: http.StatusOK,
-			Body: wrapBody(UserTokenResponse{
-				Token: token,
-			}),
+			HttpCode: http.StatusBadRequest,
+			Body:     wrapError(err),
 		}
 	}
 

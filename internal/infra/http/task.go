@@ -298,12 +298,6 @@ func (c *TaskController) GetAllByDay(request Request) Response {
 		Day:    dayTime,
 	}
 
-	if request.LoggedUser.ID == "" {
-		return Response{
-			HttpCode: httpGo.StatusUnauthorized,
-		}
-	}
-
 	output, err := c.TCGetAllByDay.Handle(input)
 	if err != nil {
 		return Response{
