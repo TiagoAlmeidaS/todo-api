@@ -210,7 +210,11 @@ func (t TaskRepository) GetAllByDay(day time.Time, clientId string) (*[]task.Tas
 			return nil, err
 		}
 
-		if taskIn.DateInit.Time().Before(day) && taskIn.DateEnd.Time().After(day) {
+		dayInput, monthInput, yearInput := day.Date()
+		dayInit, monthInit, yearInit := taskIn.DateInit.Time().Date()
+		dayEnd, monthEnd, yearEnd := taskIn.DateInit.Time().Date()
+
+		if (dayInit <= dayInput) && (monthInit <= monthInput) && (yearInit <= yearInput) && ((dayInput <= dayEnd) && (monthInput <= monthEnd) && (yearInput <= yearEnd)) {
 			tasks = append(tasks, *taskIn.toDomain())
 		}
 	}
