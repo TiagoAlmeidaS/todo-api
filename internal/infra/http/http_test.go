@@ -26,6 +26,11 @@ func (m *mockAuth) Validate(token string) (*security.User, error) {
 	return result, args.Error(1)
 }
 
+func (m *mockAuth) RefreshToken(token string) (string, error) {
+	args := m.Called(token)
+	return args.String(0), args.Error(1)
+}
+
 func TestWrapError(t *testing.T) {
 	t.Run("should return an error in json format", func(t *testing.T) {
 		got := wrapError(errors.New("i'm an error"))

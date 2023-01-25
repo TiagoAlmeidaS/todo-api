@@ -15,7 +15,7 @@ func (m *AuthMiddleware) Handle(next Handler) Handler {
 
 		if len(jwtToken) > 0 {
 			user, err := m.Authenticator.Validate(jwtToken)
-			if err != nil {
+			if err != nil || user.ID == "" {
 				return Response{
 					HttpCode: http.StatusUnauthorized,
 					Body:     wrapError(err),
@@ -30,4 +30,3 @@ func (m *AuthMiddleware) Handle(next Handler) Handler {
 		}
 	}
 }
-
