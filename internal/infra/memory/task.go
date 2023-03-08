@@ -2,6 +2,7 @@ package memory
 
 import (
 	"github.com/google/uuid"
+	"strings"
 	"time"
 	"todo_project.com/internal/app/repository"
 	"todo_project.com/internal/domain/task"
@@ -96,6 +97,18 @@ func (r *TaskRepository) GetAllByDay(day time.Time, clientId string) (*[]task.Ta
 			if taskIn.DateEnd.After(day) && taskIn.DateInit.Before(day) {
 				taskFilted = append(taskFilted, taskIn)
 			}
+		}
+	}
+
+	return &taskFilted, nil
+}
+
+func (r *TaskRepository) GetByName(nameTask string, idUser string) (*[]task.Task, error) {
+	var taskFilted []task.Task
+
+	for _, taskIn := range r.tasks {
+		if strings.Contains(strings.ToLower(taskIn.Title), strings.ToLower(nameTask)) && taskIn.IDUser == idUser {
+			taskFilted = append(taskFilted, taskIn)
 		}
 	}
 

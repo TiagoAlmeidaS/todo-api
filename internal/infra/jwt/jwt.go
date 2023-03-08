@@ -65,3 +65,27 @@ func (a *Authenticator) Validate(token string) (*security.User, error) {
 		Name: payload.Name,
 	}, nil
 }
+
+func (a *Authenticator) RefreshToken(token string) (string, error) {
+	payload := Payload{}
+	_, err := jwt.ParseWithClaims(token, &payload, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			if payload.ID == "" || payload.Name == "" {
+				return "", security.ErrUnauthorized
+			}
+
+			newToken, err := a.Generate(security.User{ID: payload.ID, Name: payload.Name})
+			if err != nil {
+				return "", security.ErrUnauthorized
+			}
+
+			return newToken, nil
+		}
+		return []byte(a.secret), nil
+	})
+	if err != nil {
+		return "", security.ErrUnauthorized
+	}
+	return token, nil
+}

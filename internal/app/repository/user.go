@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("user_usecase not found")
+	ErrUserNotFound = errors.New("user not found")
 )
 
 type IUserRepository interface {

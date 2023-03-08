@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrTaskNotFound = errors.New("task_usecase not found")
+	ErrTaskNotFound       = errors.New("task not found")
+	ErrTaskUpdateNotFound = errors.New("task update not found")
 )
 
 type ITaskRepository interface {
@@ -18,4 +19,5 @@ type ITaskRepository interface {
 	DeleteById(id string) error
 	GetResumeStatus(clientId string) (*task.Resume, error)
 	GetAllByDay(day time.Time, clientId string) (*[]task.Task, error)
+	GetByName(nameTask string, clientId string) (*[]task.Task, error)
 }

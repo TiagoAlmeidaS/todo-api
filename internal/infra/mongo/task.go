@@ -5,6 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 	"time"
 	"todo_project.com/internal/app/repository"
 	"todo_project.com/internal/domain/task"
@@ -84,7 +85,7 @@ func (t TaskRepository) GetById(id string) (*task.Task, error) {
 	err = t.Collection.FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&taskModel)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return nil, repository.ErrUserNotFound
+			return nil, repository.ErrTaskNotFound
 		}
 		return nil, err
 	}
@@ -104,9 +105,9 @@ func (t TaskRepository) Insert(taskDomain task.Task) (*task.Task, error) {
 
 func (t TaskRepository) Update(taskDomain task.Task) (*task.Task, error) {
 	taskModel := domainToTask(taskDomain)
-	_, err := t.Collection.UpdateByID(context.Background(), taskModel.ID, taskModel)
+	_, err := t.Collection.UpdateOne(context.Background(), bson.M{"_id": taskModel.ID}, bson.M{"$set": taskModel})
 	if err != nil {
-		return nil, err
+		return nil, repository.ErrTaskUpdateNotFound
 	}
 
 	return taskModel.toDomain(), nil
@@ -209,7 +210,11 @@ func (t TaskRepository) GetAllByDay(day time.Time, clientId string) (*[]task.Tas
 			return nil, err
 		}
 
-		if taskIn.DateInit.Time().Before(day) && taskIn.DateEnd.Time().After(day) {
+		dayInput, monthInput, yearInput := day.Date()
+		dayInit, monthInit, yearInit := taskIn.DateInit.Time().Date()
+		dayEnd, monthEnd, yearEnd := taskIn.DateInit.Time().Date()
+
+		if (dayInit <= dayInput) && (monthInit <= monthInput) && (yearInit <= yearInput) && ((dayInput <= dayEnd) && (monthInput <= monthEnd) && (yearInput <= yearEnd)) {
 			tasks = append(tasks, *taskIn.toDomain())
 		}
 	}
@@ -221,4 +226,31 @@ func (t TaskRepository) GetAllByDay(day time.Time, clientId string) (*[]task.Tas
 
 	return &tasks, nil
 
+}
+
+func (t TaskRepository) GetByName(nameTask string, clientId string) (*[]task.Task, error) {
+	var tasks []task.Task
+
+	cur, err := t.Collection.Find(context.Background(), bson.M{"id_user": clientId})
+	if err != nil {
+		return nil, err
+	}
+
+	for cur.Next(context.Background()) {
+		taskIn := Task{}
+		if err = cur.Decode(&taskIn); err != nil {
+			return nil, err
+		}
+
+		if strings.Contains(strings.ToLower(taskIn.Title), strings.ToLower(nameTask)) {
+			tasks = append(tasks, *taskIn.toDomain())
+		}
+	}
+
+	err = cur.Close(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &tasks, nil
 }

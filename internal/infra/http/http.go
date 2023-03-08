@@ -105,7 +105,19 @@ func (h *Http) Start(port int) error {
 		TCGetAllByDay:     h.UseCases.TaskGetAllByDay,
 		TCEdit:            h.UseCases.TaskEdit,
 		TCGetAllByClient:  h.UseCases.TaskGetAllByClient,
+		TCGetByName:       h.UseCases.TaskGetByName,
 		Authenticator:     h.Authenticator,
+	}
+
+	notesController := NotesController{
+		NCCreate:         h.UseCases.NotesCreate,
+		NCDelete:         h.UseCases.NotesDelete,
+		NCEdit:           h.UseCases.NotesEdit,
+		NCGet:            h.UseCases.NotesGet,
+		NCGetAllByClient: h.UseCases.NotesGetAllByClient,
+		NCGetAllByDay:    h.UseCases.NotesGetAllByDay,
+		NCGetByName:      h.UseCases.NotesGetByName,
+		Authenticator:    h.Authenticator,
 	}
 
 	h.Server.Register(Route{
@@ -121,6 +133,12 @@ func (h *Http) Start(port int) error {
 	})
 
 	h.Server.Register(Route{
+		Method:  http.MethodPost,
+		Path:    "/users/authentication",
+		Handler: userController.AuthenticationUser,
+	})
+
+	h.Server.Register(Route{
 		Method:      http.MethodGet,
 		Path:        "/tasks/:id",
 		Handler:     taskController.Get,
@@ -129,7 +147,7 @@ func (h *Http) Start(port int) error {
 
 	h.Server.Register(Route{
 		Method:      http.MethodGet,
-		Path:        "/tasks/client/:id_user",
+		Path:        "/tasks/client/:id",
 		Handler:     taskController.GetAllByClientId,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
@@ -166,6 +184,69 @@ func (h *Http) Start(port int) error {
 		Method:      http.MethodGet,
 		Path:        "/tasks/:day/day",
 		Handler:     taskController.GetAllByDay,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/tasks/:day/day",
+		Handler:     taskController.GetAllByDay,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/tasks/search/:name",
+		Handler:     taskController.GetByName,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodPost,
+		Path:        "/notes",
+		Handler:     notesController.Create,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodPut,
+		Path:        "/notes/:id",
+		Handler:     notesController.Edit,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/notes/:id",
+		Handler:     notesController.Get,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/notes/client/:id",
+		Handler:     notesController.GetAllByClientId,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/notes/:day/day",
+		Handler:     notesController.GetAllByDay,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodGet,
+		Path:        "/notes/search/:name",
+		Handler:     notesController.GetByName,
+		Middlewares: []Middleware{authMiddleware.Handle},
+	})
+
+	h.Server.Register(Route{
+		Method:      http.MethodDelete,
+		Path:        "/notes/:id",
+		Handler:     notesController.Delete,
 		Middlewares: []Middleware{authMiddleware.Handle},
 	})
 

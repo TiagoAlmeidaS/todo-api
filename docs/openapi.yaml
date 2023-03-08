@@ -193,6 +193,97 @@ paths:
           description: "Bad request"
       security:
         - Token: [ ]
+  /notes:
+    post:
+      tags:
+        - "notes"
+      summary: "Create a new note"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+  /notes/:id:
+    get:
+      tags:
+        - "notes"
+      summary: "Get a note"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+  /notes/:id_edit:
+    put:
+      tags:
+        - "notes"
+      summary: "Edit a note"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+  /notes/:id_delete:
+    delete:
+      tags:
+        - "notes"
+      summary: "Delete a note"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+  /notes/client/:id_user:
+    get:
+      tags:
+        - "notes"
+      summary: "Get all notes by client"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: []
+  /notes/search/:name:
+    get:
+      tags:
+        - "notes"
+      summary: "Get all notes by name"
+      description: ""
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/NotesResponse"
+        "404":
+          description: "Bad request"
+      security:
+        - Token: [ ]
+
 securityDefinitions:
   Token:
     type: "apiKey"
@@ -262,6 +353,12 @@ definitions:
       date_end:
         type: "string"
         description: "the date end task_usecase"
+      status:
+        type: "string"
+        description: "describe which status is a task"
+      id_project:
+        type: "string"
+        description: "belongs the a project"
   TaskInput:
     type: "object"
     properties:
@@ -277,6 +374,12 @@ definitions:
       date_end:
         type: "string"
         description: "the date end task_usecase"
+      status:
+        type: "string"
+        description: "describe which status is a task"
+      id_project:
+        type: "string"
+        description: "belongs the a project"
   ResumeOutput:
       type: "object"
       properties:
@@ -286,3 +389,32 @@ definitions:
           type: "integer"
         completed:
           type: "integer"
+  Notes:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      id_user:
+        type: "string"
+      dateCreated:
+        type: "string"
+      dateUpdate:
+        type: "string"
+      title:
+        type: "string"
+      description:
+        type: "string"
+
+  NotesResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      dateCreated:
+        type: "string"
+      dateUpdate:
+        type: "string"
+      title:
+        type: "string"
+      description:
+        type: "string"
