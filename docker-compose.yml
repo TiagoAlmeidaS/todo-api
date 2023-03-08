@@ -12,9 +12,9 @@ services:
       - TOKEN_DURATION_HOUR=24
       - MONGO_URI=mongodb://todo-db:27017
       - MONGO_DATABASE=todo-api
-      - PORT=1323
+      - PORT=8080
     ports:
-      - "1323:1323"
+      - "1323:8080"
     depends_on:
       - todo-db
     networks:
