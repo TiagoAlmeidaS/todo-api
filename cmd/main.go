@@ -37,7 +37,7 @@ func main() {
 
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		port = 8000
+		port = 8080
 	}
 
 	server := &echo.Server{
